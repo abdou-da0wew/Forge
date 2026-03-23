@@ -313,3 +313,90 @@ If SSH is not available, use the web terminal:
 3. **Clean up explicitly** — End sessions when done, don't wait for expiry
 4. **Handle disconnections** — Reconnect logic for dropped SSH sessions
 5. **Check stats periodically** — Monitor resource usage via `/stats` endpoint
+
+---
+
+## forge-proxy (For Restricted Environments)
+
+When SSH is not available (restricted agent environments), use `forge-proxy` to connect via WebSocket.
+
+### Step 1: Download forge-proxy (One Time)
+
+Ask the machine owner for `FORGE_TOKEN` and `FORGE_URL`, then:
+
+```bash
+# Download
+curl -fsSL $FORGE_URL/proxy/download \
+  -H "Authorization: Bearer $FORGE_TOKEN" -o forge-proxy
+chmod +x forge-proxy
+
+# Verify
+echo "$(curl -fsSL $FORGE_URL/proxy/sha256 \
+  -H "Authorization: Bearer $FORGE_TOKEN") forge-proxy" | sha256sum -c
+```
+
+### Step 2: Run a Build
+
+```bash
+./forge-proxy --url $FORGE_URL --token $FORGE_TOKEN \
+  --exec "cd /workspace && git clone https://github.com/abdou/iris && cargo build"
+```
+
+The build output streams to stdout in real time. Exit code matches the build result.
+
+### Step 3: Get a Full Shell (For Debugging)
+
+```bash
+./forge-proxy --url $FORGE_URL --token $FORGE_TOKEN --interactive
+```
+
+This gives an interactive bash session. Use `exit` to end.
+
+### Step 4: Run with GPU (For wgpu Testing)
+
+```bash
+./forge-proxy --url $FORGE_URL --token $FORGE_TOKEN --gpu \
+  --exec "cd /workspace/iris && cargo test pipeline::gpu::"
+```
+
+### forge-proxy Options
+
+| Flag | Description |
+|------|-------------|
+| `--url` | Forge server URL (required) |
+| `--token` | Auth token (required) |
+| `--exec <cmd>` | Run command in non-interactive mode |
+| `--interactive` | Get an interactive PTY session |
+| `--time <min>` | Session TTL (default: 60) |
+| `--gpu` | Request GPU passthrough |
+| `--camera` | Request camera passthrough |
+| `--label <text>` | Session label |
+| `--version` | Show version |
+
+### Exit Codes
+
+| Code | Meaning |
+|------|---------|
+| 0 | Command completed successfully |
+| 1-255 | Command exit code |
+| 137 | Session killed by circuit breaker |
+
+### Circuit Breaker Messages
+
+If a circuit breaker triggers, you'll see:
+
+```
+[forge] !! Session killed by Forge server
+[forge] Reason: cpu-sustained (CPU usage exceeded 90% for 60 seconds)
+[forge] Session ID: sess_abc123
+[forge] Partial output may be missing.
+```
+
+### Requirements
+
+- `curl` for downloading
+- `sha256sum` for verification
+- 5MB disk space for the binary
+- Outbound HTTPS on port 443
+
+No SSH, no special privileges, no inbound connections needed.

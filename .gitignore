@@ -1,6 +1,7 @@
 # Binaries
-forge
-forge-server
+/forge
+/forge-server
+/forge-proxy
 *.exe
 *.exe~
 *.dll
@@ -15,6 +16,7 @@ forge-server
 
 # Go workspace file
 go.work
+go.work.sum
 
 # Config files with secrets
 config.toml
@@ -34,3 +36,6 @@ Thumbs.db
 # Logs
 *.log
 logs/
+
+# Build artifacts
+dist/

@@ -27,6 +27,11 @@ type Manager struct {
         client *client.Client
 }
 
+// GetClient returns the Docker client
+func (m *Manager) GetClient() *client.Client {
+        return m.client
+}
+
 // NewManager creates a new container manager
 func NewManager(cfg *config.Config) (*Manager, error) {
         // Create Docker client
