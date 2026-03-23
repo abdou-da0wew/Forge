@@ -1,0 +1,20 @@
+[Unit]
+Description=Forge Cloudflare Tunnel
+Documentation=https://github.com/abdou/forge
+After=network.target forge.service
+Requires=forge.service
+
+[Service]
+Type=simple
+User=YOUR_USER
+Group=YOUR_USER
+
+# Cloudflare Tunnel (Quick Tunnel mode - random URL)
+# For persistent URL, use: cloudflared tunnel run forge-tunnel
+ExecStart=/usr/bin/cloudflared tunnel --url http://localhost:8765
+
+Restart=on-failure
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target

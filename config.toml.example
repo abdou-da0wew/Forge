@@ -1,0 +1,102 @@
+# Forge Configuration File
+# Copy this to ~/.forge/config.toml and edit as needed
+
+[server]
+# Address to listen on (localhost only for security)
+listen_addr = "127.0.0.1:8765"
+
+# Log level: debug, info, warn, error
+log_level = "info"
+
+# Admin token for kill/rebuild operations
+# Generate with: openssl rand -hex 32
+admin_token = "CHANGE_ME_ADMIN_TOKEN_32_HEX_CHARS"
+
+# Public tunnel host (set by cloudflared)
+tunnel_host = ""
+
+[auth]
+# Session authentication token
+# Generate with: openssl rand -hex 32
+token = "CHANGE_ME_SESSION_TOKEN_32_HEX_CHARS"
+
+# Max age of signed requests in seconds (replay protection)
+max_request_age_seconds = 300
+
+[docker]
+# Docker image to use for sessions
+image = "iris-dev:latest"
+
+# Docker socket path
+socket = "/var/run/docker.sock"
+
+[session]
+# Default session time-to-live in minutes
+default_ttl_minutes = 60
+
+# Maximum allowed TTL
+max_ttl_minutes = 120
+
+# Directory for session workspaces
+workspace_dir = "/home/YOUR_USER/.forge/sessions"
+
+# Maximum concurrent sessions
+max_concurrent = 3
+
+# Port range for SSH (each session gets one port)
+ssh_port_range_start = 32000
+ssh_port_range_end = 32999
+
+# Port range for web terminal (ttyd)
+ttyd_port_range_start = 33000
+ttyd_port_range_end = 33999
+
+# Container resource limits
+memory_limit_gb = 4
+cpu_limit = 2
+pid_limit = 512
+
+[watchdog]
+# Stats polling interval in seconds
+poll_interval_seconds = 5
+
+# CPU circuit breaker: kill if CPU > threshold for duration
+cpu_sustained_threshold_pct = 90
+cpu_sustained_duration_seconds = 60
+
+# RAM circuit breaker: kill if RAM usage > limit * threshold
+ram_threshold_pct = 95
+
+# PID circuit breaker: kill if process count exceeds
+pid_limit = 512
+
+# Disk write circuit breaker: kill if total writes exceed MB
+disk_write_limit_mb = 500
+
+# Network scan detection
+network_scan_ip_count = 50
+network_scan_window_seconds = 10
+
+[alarm]
+# Log file for alarms
+log_file = "/home/YOUR_USER/.forge/alarms.log"
+
+# Send desktop notifications (requires DISPLAY)
+desktop_notify = true
+
+# Optional webhook URL for notifications (Discord, Slack, custom)
+webhook_url = ""
+webhook_timeout_seconds = 10
+
+[passthrough]
+# Allow GPU passthrough
+allow_gpu = true
+
+# Allow camera passthrough
+allow_camera = true
+
+# GPU device paths (AMD)
+gpu_device_paths = ["/dev/dri/card0", "/dev/dri/renderD128"]
+
+# Camera device paths
+camera_device_paths = ["/dev/video0", "/dev/video1"]

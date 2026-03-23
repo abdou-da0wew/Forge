@@ -1,0 +1,36 @@
+[Unit]
+Description=Forge AI Agent Build Sandbox
+Documentation=https://github.com/abdou/forge
+After=network.target docker.service
+Requires=docker.service
+
+[Service]
+Type=simple
+User=YOUR_USER
+Group=YOUR_USER
+WorkingDirectory=/home/YOUR_USER/.forge
+
+# Main executable
+ExecStart=/usr/local/bin/forge-server
+
+# Restart on failure
+Restart=on-failure
+RestartSec=5
+
+# Environment for desktop notifications
+Environment=DISPLAY=:0
+Environment="WAYLAND_DISPLAY=wayland-0"
+
+# Resource limits
+LimitNOFILE=65536
+MemoryMax=512M
+
+# Security hardening
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=read-only
+ReadWritePaths=/home/YOUR_USER/.forge
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target
