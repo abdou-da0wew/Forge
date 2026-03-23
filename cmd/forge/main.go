@@ -2,6 +2,10 @@ package main
 
 import (
 	"bufio"
+	"bytes"
+	"crypto/hmac"
+	"crypto/sha256"
+	"encoding/hex"
 	"encoding/json"
 	"flag"
 	"fmt"
@@ -16,7 +20,8 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/rs/zerolog/log"
+	"github.com/BurntSushi/toml"
+	"github.com/abdou/forge/internal/config"
 )
 
 var (
@@ -98,10 +103,10 @@ Config file: ~/.forge/config.toml`)
 
 func cmdStart(args []string) {
 	var (
-		gpu     bool
-		camera  bool
-		ttl     int
-		label   string
+		gpu    bool
+		camera bool
+		ttl    int
+		label  string
 	)
 
 	fs := flag.NewFlagSet("start", flag.ExitOnError)
@@ -325,18 +330,18 @@ func cmdReplay(args []string) {
 		os.Exit(1)
 	}
 
+	// Check if asciinema is installed
+	if _, err := exec.LookPath("asciinema"); err != nil {
+		fmt.Fprintln(os.Stderr, "asciinema not installed. Install with: apt install asciinema")
+		os.Exit(1)
+	}
+
 	// Play with asciinema
 	cmd := exec.Command("asciinema", "play", recordingPath)
 	cmd.Stdin = os.Stdin
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
-
-	if err := cmd.Run(); err != nil {
-		if exec.LookPath("asciinema") != nil {
-			fmt.Fprintln(os.Stderr, "asciinema not installed. Install with: apt install asciinema")
-		}
-		os.Exit(1)
-	}
+	cmd.Run()
 }
 
 func cmdRebuild(args []string) {

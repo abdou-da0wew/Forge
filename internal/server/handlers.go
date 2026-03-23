@@ -1,17 +1,10 @@
 package server
 
 import (
-        "bytes"
-        "crypto/hmac"
-        "crypto/sha256"
-        "encoding/hex"
         "encoding/json"
         "fmt"
         "io"
         "net/http"
-        "os"
-        "strconv"
-        "strings"
         "time"
 
         "github.com/abdou/forge/internal/alarm"
@@ -414,16 +407,4 @@ func (s *Server) startTTLTimer(sess *session.Session, wd *watchdog.Watchdog) {
                 Reason:    fmt.Sprintf("TTL expired after %d minutes", s.cfg.Session.DefaultTTLMinutes),
                 Timestamp: time.Now(),
         })
-}
-
-// SignRequest creates a signed token for a request
-func SignRequest(method, path, secret string) string {
-        timestamp := strconv.FormatInt(time.Now().Unix(), 10)
-        message := method + path + timestamp
-        
-        mac := hmac.New(sha256.New, []byte(secret))
-        mac.Write([]byte(message))
-        signature := hex.EncodeToString(mac.Sum(nil))
-        
-        return fmt.Sprintf("%s:%s", signature, timestamp)
 }
